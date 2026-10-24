@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para ti ❤️‍🩹</title>
+<style>
+  *{ box-sizing: border-box; }
+
+  html, body{
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #000;
+  }
+
+  body{
+    background: #000;
+    color: #e8cfd4;
+    font-family: Georgia, "Times New Roman", serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ---------- PANTALLA INICIAL ---------- */
+  #startScreen{
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    background: #000;
+    z-index: 200;
+    transition: opacity 1.2s ease;
+  }
+
+  #startScreen.hide{
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #startScreen .hint{
+    font-size: clamp(14px, 3.6vw, 18px);
+    color: #d9a6b3;
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 0 22px;
+  }
+
+  #startBtn{
+    padding: 18px 48px;
+    font-family: inherit;
+    font-size: clamp(16px, 4vw, 20px);
+    letter-spacing: 2px;
+    color: #ffe6ec;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,170,195,0.55);
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 0 24px rgba(255,90,140,0.25);
+    transition: .3s ease;
+  }
+
+  #startBtn:hover{
+    background: rgba(255,255,255,0.12);
+    box-shadow: 0 0 40px rgba(255,90,140,0.45);
+    transform: translateY(-2px);
+  }
+
+  #startBtn:active{ transform: scale(.96); }
+
+  /* ---------- LIBRO ---------- */
+  #book{
+    position: relative;
+    width: min(92vw, 600px);
+    height: min(84vh, 700px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.2s ease;
+    z-index: 20;
+  }
+
+  #book.visible{
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .page{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 26px;
+    text-align: center;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,160,190,0.18);
+    border-radius: 22px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 20px 55px rgba(0,0,0,0.9),
+                inset 0 0 50px rgba(255,90,140,0.05);
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+    transition: opacity 1s ease, transform 1s ease;
+    pointer-events: none;
+  }
+
+  .page.active{
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .orn{
+    font-size: 20px;
+    color: #ff9dbf;
+    margin-bottom: 14px;
+    opacity: .9;
+  }
+
+  .title{
+    font-size: clamp(18px, 4.6vw, 25px);
+    line-height: 1.5;
+    margin: 0 0 22px;
+    color: #ffc8d8;
+    letter-spacing: .3px;
+    text-shadow: 0 0 18px rgba(255,120,165,0.35);
+  }
+
+  .txt{
+    font-size: clamp(14.5px, 3.8vw, 17px);
+    line-height: 1.9;
+    margin: 0;
+    color: #e6ccd4;
+    max-width: 48ch;
+  }
+
+  .txt em{
+    color: #ffa8c4;
+    font-style: italic;
+  }
+
+  .next{
+    margin-top: 28px;
+    padding: 11px 30px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,150,185,0.5);
+    background: rgba(255,120,160,0.10);
+    color: #ffd9e4;
+    font-family: inherit;
+    font-size: 15px;
+    letter-spacing: .5px;
+    cursor: pointer;
+    transition: .3s ease;
+  }
+
+  .next:hover{
+    background: rgba(255,120,160,0.22);
+    box-shadow: 0 0 28px rgba(255,90,140,0.4);
+    transform: translateY(-2px);
+  }
+
+  .next:active{ transform: scale(.96); }
+
+  /* ---------- BOTÓN OPEN ---------- */
+  #openBtn{
+    padding: 20px 58px;
+    font-family: inherit;
+    font-size: clamp(19px, 4.8vw, 24px);
+    letter-spacing: 6px;
+    color: #fff0f5;
+    background: rgba(255,110,155,0.16);
+    border: 1.5px solid rgba(255,150,190,0.7);
+    border-radius: 999px;
+    cursor: pointer;
+    text-shadow: 0 0 16px rgba(255,120,170,0.8);
+    box-shadow: 0 0 28px rgba(255,90,140,0.35),
+                inset 0 0 22px rgba(255,110,155,0.18);
+    animation: pulse 3s ease-in-out infinite;
+    transition: transform .3s ease;
+  }
+
+  #openBtn:hover{
+    transform: scale(1.05);
+    box-shadow: 0 0 50px rgba(255,90,140,0.7),
+                inset 0 0 28px rgba(255,110,155,0.3);
+  }
+
+  #openBtn:active{ transform: scale(.95); }
+
+  @keyframes pulse{
+    0%,100%{ box-shadow: 0 0 24px rgba(255,90,140,0.3), inset 0 0 18px rgba(255,110,155,0.15); }
+    50%    { box-shadow: 0 0 50px rgba(255,90,140,0.6), inset 0 0 28px rgba(255,110,155,0.3); }
+  }
+
+  /* ---------- EFECTOS FINALES ---------- */
+  #effects{
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  .float{
+    position: fixed;
+    bottom: -80px;
+    left: var(--x, 50vw);
+    will-change: transform, opacity;
+    user-select: none;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+
+  .float.heart{
+    animation-name: riseA;
+    filter: drop-shadow(0 0 8px rgba(255,90,140,0.55));
+  }
+
+  .float.letter{
+    animation-name: riseB;
+    font-family: Georgia, serif;
+    color: #ffa8c4;
+    text-shadow: 0 0 14px rgba(255,110,155,0.7);
+    font-weight: bold;
+  }
+
+  @keyframes riseA{
+    0%  { transform: translate3d(0,0,0) scale(.45) rotate(0deg); opacity: 0; }
+    12% { opacity: 1; }
+    85% { opacity: .9; }
+    100%{ transform: translate3d(0,-118vh,0) scale(1.15) rotate(28deg); opacity: 0; }
+  }
+
+  @keyframes riseB{
+    0%  { transform: translate3d(0,0,0) scale(.4) rotate(0deg); opacity: 0; }
+    18% { opacity: .95; }
+    100%{ transform: translate3d(70px,-112vh,0) scale(1.3) rotate(-32deg); opacity: 0; }
+  }
+
+  /* ---------- MENSAJE FINAL ---------- */
+  #finalMsg{
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(.9);
+    transition: opacity 2.4s ease, transform 2.4s ease;
+    font-size: clamp(22px, 6vw, 42px);
+    line-height: 1.5;
+    color: #ffdbe5;
+    text-shadow: 0 0 30px rgba(255,90,140,0.8),
+                 0 0 60px rgba(255,90,140,0.35);
+  }
+
+  #finalMsg.show{
+    opacity: 1;
+    transform: scale(1);
+    animation: glow 4.5s ease-in-out infinite;
+  }
+
+  @keyframes glow{
+    0%,100%{ text-shadow: 0 0 26px rgba(255,90,140,0.65), 0 0 55px rgba(255,90,140,0.3); }
+    50%    { text-shadow: 0 0 50px rgba(255,110,160,0.95), 0 0 95px rgba(255,90,140,0.55); }
+  }
+</style>
+</head>
+<body>
+
+  <!-- PANTALLA INICIAL -->
+  <div id="startScreen">
+    <div class="hint">Antes de leer, toca el botón…</div>
+    <button id="startBtn">Comenzar</button>
+  </div>
+
+  <!-- LIBRO -->
+  <div id="book">
+
+    <!-- PÁGINA 1 -->
+    <div class="page active">
+      <div class="orn">❦</div>
+      <h1 class="title">No sé cómo empezar</h1>
+      <p class="txt">
+        No sé cómo empezar esto sin que se me quiebre la voz. Desde que te fuiste,
+        todo se siente más pesado, más callado, más gris. Las mañanas ya no tienen
+        tu risa, las noches se hicieron eternas, y yo sigo aquí, intentando entender
+        cómo alguien puede irse así, sin mirar atrás, dejando tantos pedazos de mí
+        en el camino.
+      </p>
+      <button class="next">Siguiente →</button>
+    </div>
+
+    <!-- PÁGINA 2 -->
+    <div class="page">
+      <div class="orn">❦</div>
+      <h1 class="title">Me dijiste que terminemos</h1>
+      <p class="txt">
+        Me dijiste que terminemos con la voz firme, sin temblar. Yo te escuché con
+        los ojos llenos de agua, conteniendo todo lo que quería gritar. No estaba
+        listo para despedirme de ti, ni de tus mañanas, ni de la forma en que decías
+        mi nombre. Pero lo acepté, porque no hay nada más doloroso que quedarse
+        donde ya no te quieren.
+      </p>
+      <button class="next">Siguiente →</button>
+    </div>
+
+    <!-- PÁGINA 3 -->
+    <div class="page">
+      <div class="orn">❦</div>
+      <h1 class="title">Repaso cada recuerdo</h1>
+      <p class="txt">
+        Paso las noches repasando cada momento, buscando el instante exacto en el
+        que todo cambió. Y no lo encuentro. Solo encuentro tu risa en la cocina,
+        tus abrazos en la puerta, los planes que hicimos y que ahora se quedaron
+        sin nosotros. Duele darme cuenta de que en tu historia ya no estoy, y que
+        ese futuro lo vas a construir sin mí.
+      </p>
+      <button class="next">Siguiente →</button>
+    </div>
+
+    <!-- PÁGINA 4 -->
+    <div class="page">
+      <div class="orn">❦</div>
+      <h1 class="title">Hay días en los que me convenzo</h1>
+      <p class="txt">
+        De que estoy bien. Me levanto, sonrío, hago como si nada. Y otros en los que
+        una canción, un olor, una calle me rompen por dentro. Nadie me enseñó a
+        extrañar así, a querer tanto a alguien que ya no está, a tener que aprender
+        a vivir con un vacío que antes era tu lugar. Todavía te busco en las cosas,
+        aunque sé que ya no vas a estar.
+      </p>
+      <button class="next">Siguiente →</button>
+    </div>
+
+    <!-- PÁGINA 5 -->
+    <div class="page">
+      <div class="orn">❦</div>
+      <h1 class="title">No te culpo, de verdad</h1>
+      <p class="txt">
+        A veces el amor se cansa, a veces las personas cambian, a veces los caminos
+        se separan sin que nadie tenga la culpa. Pero eso no hace que duela menos.
+        Duele como duele todo lo que fue real y se terminó sin querer terminarse.
+        Duele porque te quería, porque te sigo queriendo, y porque una parte de mí
+        todavía espera que vuelvas aunque sé que no debería.
+      </p>
+      <button class="next">Siguiente →</button>
+    </div>
+
+    <!-- PÁGINA 6 -->
+    <div class="page">
+      <div class="orn">❦</div>
+      <h1 class="title">Si algún día piensas en mí</h1>
+      <p class="txt">
+        Ojalá sea con cariño. Ojalá recuerdes lo bonito y no lo último. Y si no
+        vuelves nunca, ojalá seas feliz de una forma enorme, de esa que yo ya no
+        puedo darte. Porque aun rota, aun con el corazón hecho pedazos, te deseo lo
+        mejor. Porque quererte también es esto: dejarte ir aunque me duela el alma
+        y me cueste respirar.
+      </p>
+      <button class="next">Siguiente →</button>
+    </div>
+
+    <!-- PÁGINA 7 -->
+    <div class="page">
+      <div class="orn">❦</div>
+      <h1 class="title">Gracias por cada instante</h1>
+      <p class="txt">
+        Incluso por este final. Me quedo con lo bonito y suelto lo demás, aunque me
+        tome meses, aunque me tome años. Voy a aprender a estar sin ti, a dormir
+        sin tus buenas noches, a no esperarte en cada esquina. Cuídate mucho, mi
+        amor. Sé feliz. Y si un día te acuerdas de mí, sonríe, porque yo siempre te
+        voy a recordar con una sonrisa triste y el corazón apretado. ❤️‍🩹
+      </p>
+      <button class="next">Continuar →</button>
+    </div>
+
+    <!-- PÁGINA 8 -->
+    <div class="page">
+      <button id="openBtn">OPEN</button>
+    </div>
+  </div>
+
+  <!-- MENSAJE FINAL -->
+  <div id="finalMsg">Gracias por todo<br>❤️‍🩹</div>
+
+  <!-- EFECTOS -->
+  <div id="effects"></div>
+
+  <!-- MÚSICA -->
+  <audio id="readMusic" src="https://files.catbox.moe/10tv6t.mp3" preload="auto"></audio>
+  <audio id="music" src="https://files.catbox.moe/tgqm4k.mp3" preload="auto"></audio>
+
+<script>
+  /* ---------- INICIO ---------- */
+  const startScreen = document.getElementById('startScreen');
+  const startBtn    = document.getElementById('startBtn');
+  const book        = document.getElementById('book');
+  const readMusic   = document.getElementById('readMusic');
+
+  startBtn.addEventListener('click', () => {
+    startScreen.classList.add('hide');
+    setTimeout(() => { startScreen.style.display = 'none'; }, 1300);
+
+    book.classList.add('visible');
+
+    readMusic.volume = 0.7;
+    readMusic.loop = true;
+    const p = readMusic.play();
+    if (p && p.catch) p.catch(() => {});
+  });
+
+  /* ---------- PÁGINAS ---------- */
+  const pages = Array.from(document.querySelectorAll('.page'));
+  let idx = 0;
+
+  function stopReading(){
+    if (!readMusic.paused){
+      readMusic.pause();
+      readMusic.currentTime = 0;
+    }
+  }
+
+  function goTo(i){
+    if (i < 0 || i >= pages.length) return;
+    pages[idx].classList.remove('active');
+    idx = i;
+    pages[idx].classList.add('active');
+
+    if (idx === pages.length - 1){
+      stopReading();
+    }
+  }
+
+  document.querySelectorAll('.next').forEach(btn => {
+    btn.addEventListener('click', () => goTo(idx + 1));
+  });
+
+  /* ---------- OPEN + EFECTOS ---------- */
+  const openBtn  = document.getElementById('openBtn');
+  const music    = document.getElementById('music');
+  const finalMsg = document.getElementById('finalMsg');
+  const effects  = document.getElementById('effects');
+
+  const HEARTS  = ['❤️','💔','❤️‍🩹','💕','💖','💘','😔','😭','🥺','😢','✨','💫'];
+  const LETTERS = 'TE QUIERO MUCHO';
+
+  let timer = null;
+
+  function spawnHeart(){
+    const el = document.createElement('div');
+    el.className = 'float heart';
+    el.textContent = HEARTS[Math.floor(Math.random() * HEARTS.length)];
+    el.style.setProperty('--x', (Math.random() * 100) + 'vw');
+    el.style.fontSize = (14 + Math.random() * 30) + 'px';
+    el.style.animationDuration = (10 + Math.random() * 8) + 's';
+    el.style.animationDelay = (Math.random() * 1.2) + 's';
+    effects.appendChild(el);
+    setTimeout(() => el.remove(), 22000);
+  }
+
+  function spawnLetter(){
+    const ch = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    if (ch === ' ') return;
+    const el = document.createElement('div');
+    el.className = 'float letter';
+    el.textContent = ch;
+    el.style.setProperty('--x', (Math.random() * 100) + 'vw');
+    el.style.fontSize = (16 + Math.random() * 30) + 'px';
+    el.style.animationDuration = (11 + Math.random() * 8) + 's';
+    el.style.animationDelay = (Math.random() * 1.4) + 's';
+    effects.appendChild(el);
+    setTimeout(() => el.remove(), 24000);
+  }
+
+  function burst(){
+    for (let i = 0; i < 45; i++){
+      setTimeout(() => {
+        spawnHeart();
+        if (Math.random() < 0.65) spawnLetter();
+      }, i * 130);
+    }
+  }
+
+  function startEffects(){
+    burst();
+    if (timer) clearInterval(timer);
+    timer = setInterval(() => {
+      spawnHeart();
+      if (Math.random() < 0.55) spawnLetter();
+      if (Math.random() < 0.30) spawnHeart();
+    }, 750);
+  }
+
+  openBtn.addEventListener('click', () => {
+    music.volume = 0.95;
+    music.loop = false;
+    const p = music.play();
+    if (p && p.catch) p.catch(() => {});
+
+    book.style.opacity = '0';
+    book.style.pointerEvents = 'none';
+    setTimeout(() => { book.style.display = 'none'; }, 1100);
+
+    setTimeout(() => {
+      finalMsg.classList.add('show');
+      startEffects();
+    }, 900);
+  });
+</script>
+</body>
+</html>
